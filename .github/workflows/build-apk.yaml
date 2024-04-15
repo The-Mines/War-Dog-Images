@@ -35,7 +35,10 @@ jobs:
 
       - name: Build package using Melange
         run: |
-          melange build --config ${{matrix.app.name}}/.melange.yaml --workspace-dir ${{ github.workspace }}/${{ matrix.app.name }} --source-dir ${{ github.workspace }}/${{ matrix.app.name }} --workdir build --cache-dir cache
+          cd ${{ matrix.app.name }}
+          melange build 
+          cd - 
+
 
       - name: Upload APK as an Artifact (aarch64)
         uses: actions/upload-artifact@v3
