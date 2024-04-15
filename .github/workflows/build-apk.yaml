@@ -3,7 +3,7 @@ name: Build and Upload APK
 on:
   push:
     branches:
-      - main  # or any branch you want to trigger the workflow
+      - main
 
 jobs:
   build:
@@ -22,19 +22,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      
+      - name: Download and Install Melange
+        run: |
+          curl -L "https://github.com/chainguard-dev/melange/releases/download/v0.6.11/melange_0.6.11_Linux_x86_64.tar.gz" -o melange.tar.gz
+          tar -xzf melange.tar.gz -C .
+          chmod +x melange
 
       - name: Add SHORT_SHA env property with commit short sha
         run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
 
-      - name: Build package using Melange with Docker
+      - name: Build package using Melange
         run: |
-          docker pull cgr.dev/chainguard/melange
-          docker run --rm -v ${{ github.workspace }}:/workspace cgr.dev/chainguard/melange build \
-            --config /workspace/${{ matrix.app.name }}/.melange.yaml \
-            --workspace-dir /workspace/${{ matrix.app.name }} \
-            --source-dir /workspace/${{ matrix.app.name }} \
-            --workdir /workspace/${{ matrix.app.name }}/build \
-            --cache-dir /workspace/${{ matrix.app.name }}/cache
+          ./melange build --config ${{matrix.app.name}}/.melange.yaml --workspace-dir ${{ github.workspace }}/${{ matrix.app.name }} --source-dir ${{ github.workspace }}/${{ matrix.app.name }} --workdir build --cache-dir cache
 
       - name: Upload APK as an Artifact (aarch64)
         uses: actions/upload-artifact@v3
