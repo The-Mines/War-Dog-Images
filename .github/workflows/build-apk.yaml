@@ -26,9 +26,8 @@ jobs:
       - name: Download and Install Melange
         run: |
           curl -L "https://github.com/chainguard-dev/melange/releases/download/v0.6.11/melange_0.6.11_linux_386.tar.gz" -o melange.tar.gz
-          tar -xzf melange.tar.gz 
-          chmod +x melange_0.6.11_linux_386/melange
-          cp melange_0.6.11_linux_386/melange /usr/local/bin/melange
+          tar -xzf melange.tar.gz -C .
+          chmod +x melange
 
       - name: Add SHORT_SHA env property with commit short sha
         run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
