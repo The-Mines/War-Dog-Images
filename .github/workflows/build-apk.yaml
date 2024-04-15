@@ -20,6 +20,12 @@ jobs:
             env: dev
             apkPath: mongodbs
     steps:
+      - name: Install Melange
+        run: |
+          # This is a hypothetical installation command; adjust based on actual installation steps
+          sudo apt-get update
+          sudo apt-get install melange -y
+
       - name: Checkout code
         uses: actions/checkout@v3
     
@@ -29,8 +35,11 @@ jobs:
       - name: Build package using Melange
         uses: chainguard-dev/actions/melange-build-pkg@main
         with:
-          package-name: war-dog-${{ matrix.app.name }}  # Replace with your actual package name
-          additional-args: ""  # Any additional arguments for Melange
+          config: '.melange.yaml'  # Path to your Melange config file
+          workspace-dir: ${{ github.workspace }}/${{ matrix.app.name }}  # Adjust if your source is in a specific subdirectory
+          source-dir: ${{ github.workspace }}/${{ matrix.app.name }}  # Adjust if your source is in a specific subdirectory
+          workdir: 'build'  # Temporary working directory for build process
+          cache-dir: 'cache'  # Optional: specify a cache directory to speed up builds
 
       - name: Upload APK as an Artifact (aarch64)
         uses: actions/upload-artifact@v3
