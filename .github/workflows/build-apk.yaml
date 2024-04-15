@@ -37,14 +37,16 @@ jobs:
       - name: Add SHORT_SHA env property with commit short sha
         run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
 
-      - name: Set up Docker
-        run: |
-          sudo service docker start
+      # - name: Set up Docker
+      #   run: |
+      #     sudo service docker start
 
       - name: Build package using Melange
         run: |
+          sudo service docker start
+          sudo service docker status
           cd ${{ matrix.app.name }}
-          melange build --runner docker
+          melange build 
           cd - 
 
 
