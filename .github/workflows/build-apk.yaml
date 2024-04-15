@@ -20,26 +20,21 @@ jobs:
             env: dev
             apkPath: mongodbs
     steps:
-      - name: Install Melange
-        run: |
-          # This is a hypothetical installation command; adjust based on actual installation steps
-          sudo apt-get update
-          sudo apt-get install melange -y
-
       - name: Checkout code
         uses: actions/checkout@v3
-    
+
       - name: Add SHORT_SHA env property with commit short sha
         run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
 
-      - name: Build package using Melange
-        uses: chainguard-dev/actions/melange-build-pkg@main
-        with:
-          config: '.melange.yaml'  # Path to your Melange config file
-          workspace-dir: ${{ github.workspace }}/${{ matrix.app.name }}  # Adjust if your source is in a specific subdirectory
-          source-dir: ${{ github.workspace }}/${{ matrix.app.name }}  # Adjust if your source is in a specific subdirectory
-          workdir: 'build'  # Temporary working directory for build process
-          cache-dir: 'cache'  # Optional: specify a cache directory to speed up builds
+      - name: Build package using Melange with Docker
+        run: |
+          docker pull cgr.dev/chainguard/melange
+          docker run --rm -v ${{ github.workspace }}:/workspace cgr.dev/chainguard/melange build \
+            --config /workspace/${{ matrix.app.name }}/.melange.yaml \
+            --workspace-dir /workspace/${{ matrix.app.name }} \
+            --source-dir /workspace/${{ matrix.app.name }} \
+            --workdir /workspace/${{ matrix.app.name }}/build \
+            --cache-dir /workspace/${{ matrix.app.name }}/cache
 
       - name: Upload APK as an Artifact (aarch64)
         uses: actions/upload-artifact@v3
