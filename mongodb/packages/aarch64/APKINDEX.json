@@ -1,0 +1,28 @@
+{
+  "Signature": null,
+  "Description": "",
+  "Packages": [
+    {
+      "Name": "war-dog-mongodb",
+      "Version": "7.3.1-r0",
+      "Arch": "aarch64",
+      "Description": "builds mongodb from source.",
+      "License": "Apache-2.0",
+      "Origin": "war-dog-mongodb",
+      "Maintainer": "",
+      "URL": "",
+      "Checksum": "12g+uK4xJbiGxUiA7OE6+vv0gJ4=",
+      "Dependencies": null,
+      "Provides": null,
+      "InstallIf": null,
+      "Size": 1155,
+      "InstalledSize": 1630,
+      "ProviderPriority": 0,
+      "BuildTime": "1970-01-01T00:00:00Z",
+      "BuildDate": 0,
+      "RepoCommit": "",
+      "Replaces": null,
+      "DataHash": "d1381948335ba51a4c46951b9ef87f00a0ee6a7b93d6a86cdad1f388f8e0b903"
+    }
+  ]
+}

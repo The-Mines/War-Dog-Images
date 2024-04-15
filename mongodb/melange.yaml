@@ -1,0 +1,81 @@
+#definition for the mongodb package
+package:
+  name: war-dog-mongodb
+  version: 7.3.1
+  epoch: 0
+  description: "builds mongodb from source."
+  target-architecture:
+  #  - x86_64
+    - aarch64
+  copyright:
+    - license: Apache-2.0
+
+environment:
+  contents:
+    repositories:
+      - https://packages.wolfi.dev/os
+    #  - https://github.com/mongodb/mongo
+    keyring:
+      - https://packages.wolfi.dev/os/wolfi-signing.rsa.pub
+    packages:
+      - git
+      - curl
+      - build-base
+      - python-3.10
+      - python-3.10-base-dev
+      - py3.10-pip
+      - wolfi-base
+      - gcc
+      - openssl
+      - openssl-dev
+      - xz 
+      - xz-dev
+      - llvm-lld
+      - libcurl-openssl4
+      - linux-headers
+      - glibc-dev
+      - llvm-lld
+      - npm 
+      - nodejs
+
+#curl  
+# git 
+#python 10
+#pip 
+# apk add py3.10-pips
+# apk add python-3.10-base-dev
+# git clone https://github.com/mongodb/mongo.git
+# git checkout r7.0.8
+# python -m pip install 'poetry==1.5.1'
+# python -m poetry install --no-root --sync
+# pip wheel --use-pep517 "psutil (==5.8.0)"
+# apk add gcc 
+# apk add openssl
+# apk add openssl-dev
+# apk add xz 
+# apk add xz-dev
+# apk add llvm-lld
+# apk add libcurl-openssl4k 
+# apk add linux-headers
+# apk add glibc-dev
+# poetry install 
+# python buildscripts/scons.py install-mongodbp
+
+
+pipeline:
+  - uses: fetch
+    with:
+      expected-sha256: 64a30ceb4378eac55d33a8281231fa4b60241fa3a1eb88a4d00ca4b258c1ee2e
+      uri: https://github.com/mongodb/mongo/archive/refs/tags/r${{package.version}}.tar.gz
+    
+  - runs: |
+      #code goes here 
+      python3 -m venv build-env --prompt mongo
+      source build-env/bin/activate
+      pip3.10 install 'poetry==1.5.1'
+      pip3.10 install  cxxfilt
+      poetry install --no-root --sync
+      python3.10 buildscripts/scons.py install-mongod --linker=gold MONGO_VERSION=${{package.version}} --disable-warnings-as-errors -j1
+
+
+
