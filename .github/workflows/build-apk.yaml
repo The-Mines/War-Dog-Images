@@ -8,6 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:stable-dind
+        options: --privileged
     permissions:
       contents: read
       packages: write
@@ -33,10 +37,14 @@ jobs:
       - name: Add SHORT_SHA env property with commit short sha
         run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
 
+      - name: Set up Docker
+        run: |
+          sudo service docker start
+
       - name: Build package using Melange
         run: |
           cd ${{ matrix.app.name }}
-          melange build 
+          melange build --runner docker
           cd - 
 
 
