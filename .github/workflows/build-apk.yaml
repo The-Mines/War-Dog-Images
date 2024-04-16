@@ -59,10 +59,9 @@ jobs:
         with:
           archs: ${{ matrix.app.arch }}
           config: .melange.yaml
-          signing-key-path: /work/melange.rsa
-          repository-path: /work/packages
+          # signing-key-path: /work/melange.rsa
+          # repository-path: /work/packages
           empty-workspace: false
-          sign-with-temporary-key: true
           workdir: ${{matrix.app.apkPath}}
   
       - name: Create temp copy of /work directory (used in next step)
