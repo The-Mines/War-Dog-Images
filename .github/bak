@@ -1,0 +1,71 @@
+name: Build and Upload APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:stable-dind
+        options: --privileged
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        app:
+          - name: mongodb
+            dockerfile: mongodb/Dockerfile
+            context: mongodb
+            env: dev
+            apkPath: mongodbs
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # - name: Download and Install Melange
+      #   run: |
+      #     curl -L "https://github.com/chainguard-dev/melange/releases/download/v0.6.11/melange_0.6.11_linux_386.tar.gz" -o melange.tar.gz
+      #     tar -xzf melange.tar.gz 
+      #     chmod +x melange_0.6.11_linux_386/melange
+      #     cp melange_0.6.11_linux_386/melange /usr/local/bin/melange
+
+      - name: Add SHORT_SHA env property with commit short sha
+        run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
+
+      - name: Set up Docker
+        run: |
+          sudo service docker start || sudo service docker restart
+
+      - name: Cleanup Docker Containers and Images
+        if: always()
+        run: |
+          docker container prune -f
+          docker image prune -f
+
+
+
+      - name: Build package using Melange
+        run: |
+          sudo service docker start
+          sudo service docker status
+          cd ${{ matrix.app.name }}
+          melange build  --runner docker
+          cd - 
+
+
+      - name: Upload APK as an Artifact (aarch64)
+        uses: actions/upload-artifact@v3
+        with:
+          name: wd-${{ matrix.app.name }}-aarch64-731r0
+          path: ${{ matrix.app.apkPath }}/aarch64/war-dog-${{ matrix.app.name }}-7.3.1-r0.apk
+
+      - name: Upload APK as an Artifact (x86_64)
+        uses: actions/upload-artifact@v3
+        with:
+          name: wd-${{ matrix.app.name }}-x86_731r0
+          path: ${{ matrix.app.apkPath }}/x86_64/war-dog-${{ matrix.app.name }}-7.3.1-r0.apk
