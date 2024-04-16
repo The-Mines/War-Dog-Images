@@ -63,6 +63,7 @@ jobs:
           # repository-path: /work/packages
           empty-workspace: false
           workdir: ${{matrix.app.apkPath}}
+          repository-path: ${{matrix.app.apkPath}}/packages
   
       - name: Create temp copy of /work directory (used in next step)
         shell: bash
