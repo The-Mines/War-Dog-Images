@@ -31,11 +31,11 @@ jobs:
 # system steups 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v1.2.0
-      - name: add x86 
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-          sudo update-binfmts --enable qemu-x86_64
+      # - name: add x86 
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y qemu-user-static
+      #     sudo update-binfmts --enable qemu-x86_64
 
       - name: Add SHORT_SHA env property with commit short sha
         run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
