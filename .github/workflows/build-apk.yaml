@@ -53,7 +53,7 @@ jobs:
       - uses: chainguard-dev/actions/melange-build-pkg@main
         with:
           config: ${{matrix.app.context}}/.melange.yaml
-          repository-path: ${{ github.workspace }}/${{matrix.app.context}}
+          repository-path: ${{matrix.app.context}}
           archs: x86_64
           sign-with-key: true
           signing-key-path: ${{ github.workspace }}/melange.rsa
