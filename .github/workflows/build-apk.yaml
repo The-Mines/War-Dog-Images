@@ -63,7 +63,7 @@ jobs:
       - uses: chainguard-images/actions/apko-build@main
         with:
           config: apko.yaml
-          tag: ${{matrix.app.name}}:${{env.SHORT_SHA}
+          tag: ${{matrix.app.name}}:${{env.SHORT_SHA}}
           keyring-append: melange.rsa.pub
           archs: x86_64
 
