@@ -52,7 +52,7 @@ jobs:
 
       - uses: chainguard-dev/actions/melange-build-pkg@main
         with:
-          config: .melange.yaml
+          config: ${{ github.workspace }}/${{matrix.app.context}}/.melange.yaml
           repository-path: ${{ github.workspace }}/${{matrix.app.context}}
           archs: x86_64
           sign-with-key: true
@@ -62,7 +62,7 @@ jobs:
   
       - uses: chainguard-images/actions/apko-build@main
         with:
-          config: apko.yaml
+          config: ${{ github.workspace }}/${{matrix.app.context}}/apko.yaml
           tag: ${{matrix.app.name}}:${{env.SHORT_SHA}}
           keyring-append: melange.rsa.pub
           archs: x86_64
