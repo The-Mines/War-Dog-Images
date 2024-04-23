@@ -52,17 +52,18 @@ jobs:
 
       - uses: chainguard-dev/actions/melange-build-pkg@main
         with:
-          config: ${{matrix.app.context}}/.melange.yaml
+          config: .melange.yaml
           repository-path: ${{matrix.app.context}}
           archs: x86_64
           sign-with-key: true
           signing-key-path: ${{ github.workspace }}/melange.rsa
           keyring-append: ${{ github.workspace }}/melange.rsa.pub
           update-index: true
+          workdir: ${{matrix.app.context}}
   
       - uses: chainguard-images/actions/apko-build@main
         with:
-          config: ${{ github.workspace }}/${{matrix.app.context}}/apko.yaml
+          config: $${{matrix.app.context}}/apko.yaml
           tag: ${{matrix.app.name}}:${{env.SHORT_SHA}}
           keyring-append: melange.rsa.pub
           archs: x86_64
