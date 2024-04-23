@@ -5,8 +5,8 @@ package:
   epoch: 0
   description: "builds mongodb from source."
   target-architecture:
-  #  - x86_64
-    - aarch64
+    - x86_64
+  #  - aarch64
   copyright:
     - license: Apache-2.0
 
