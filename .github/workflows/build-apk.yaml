@@ -18,67 +18,27 @@ jobs:
     strategy:
       matrix:
         app:
-          - name: mongodb
-            dockerfile: mongodb/Dockerfile
-            context: mongodb
-            env: dev
-            apkPath: mongodb
-            arch: x86_64
+          name: mongodb
+          dockerfile: mongodb/Dockerfile
+          context: mongodb
+          env: dev
+          apkPath: mongodb
+          arch: x86_64
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      # - name: Download and Install Melange
-      #   run: |
-      #     curl -L "https://github.com/chainguard-dev/melange/releases/download/v0.6.11/melange_0.6.11_linux_386.tar.gz" -o melange.tar.gz
-      #     tar -xzf melange.tar.gz 
-      #     chmod +x melange_0.6.11_linux_386/melange
-      #     cp melange_0.6.11_linux_386/melange /usr/local/bin/melange
-
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v1.2.0
-      - name: Add SHORT_SHA env property with commit short sha
-        run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
-
-      # - name: Set up Docker
-      #   run: |
-      #     sudo service docker start || sudo service docker restart
-
-      # - name: Cleanup Docker Containers and Images
-      #   if: always()
-      #   run: |
-      #     docker container prune -f
-      #     docker image prune -f
-
-      # - name: Build package using Melange
-      #   run: |
-      #     cd ${{ matrix.app.name }}
-      #     melange build  --runner docker
-      #     cd - 
-      - uses: chainguard-dev/actions/melange-build@main
+      - name: Build package using Melange
+        uses: chainguard-dev/actions/melange-build-pkg@main
         with:
+          config: ${{ matrix.app.name }}.yaml
           archs: ${{ matrix.app.arch }}
-          config: .melange.yaml
-          # signing-key-path: /work/melange.rsa
-          # repository-path: /work/packages
-          empty-workspace: false
-          workdir: ${{matrix.app.apkPath}}
-          repository-path: ${{matrix.app.apkPath}}/packages
-  
-      - name: Create temp copy of /work directory (used in next step)
-        shell: bash
-        run: |
-          rm -rf .apko-automount && cp -r /work .apko-automount
+          sign-with-key: true
+          update-index: true
+          repository-append: ${{ github.workspace }}/packages
+          keyring-append: /etc/apk/keys/${{ matrix.app.name }}.pub
+          workspace-dir: ${{ github.workspace }}/build/${{ matrix.app.name }}
+          empty-workspace: ${{ inputs.empty-workspace }}
+          signing-key-path: ${{ github.workspace }}/${{ matrix.app.name }}
+          source-dir: ${{ matrix.app.context }}
 
-
-      # - name: Upload APK as an Artifact (aarch64)
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: wd-${{ matrix.app.name }}-aarch64-731r0
-      #     path: ${{ matrix.app.apkPath }}/aarch64/war-dog-${{ matrix.app.name }}-7.3.1-r0.apk
-
-      # - name: Upload APK as an Artifact (x86_64)
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: wd-${{ matrix.app.name }}-x86_731r0
-      #     path: ${{ matrix.app.apkPath }}/x86_64/war-dog-${{ matrix.app.name }}-7.3.1-r0.apk
+#    using: 'composite'
