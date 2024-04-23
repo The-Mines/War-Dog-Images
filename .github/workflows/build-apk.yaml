@@ -18,13 +18,12 @@ jobs:
     strategy:
       matrix:
         app:
-          name: mongodb
-          dockerfile: mongodb/Dockerfile
-          context: mongodb
-          env: dev
-          apkPath: mongodb
-          arch: x86_64
-    runs-on: ubuntu-latest
+          - name: mongodb
+            dockerfile: mongodb/Dockerfile
+            context: mongodb
+            env: dev
+            apkPath: mongodb
+            arch: x86_64
 
     steps:
       - name: Build package using Melange
@@ -41,4 +40,3 @@ jobs:
           signing-key-path: ${{ github.workspace }}/${{ matrix.app.name }}
           source-dir: ${{ matrix.app.context }}
 
-#    using: 'composite'
