@@ -24,19 +24,67 @@ jobs:
             env: dev
             apkPath: mongodb
             arch: x86_64
-
     steps:
-      - name: Build package using Melange
-        uses: chainguard-dev/actions/melange-build-pkg@main
-        with:
-          config: ${{ matrix.app.name }}.yaml
-          archs: ${{ matrix.app.arch }}
-          sign-with-key: true
-          update-index: true
-          repository-append: ${{ github.workspace }}/packages
-          keyring-append: /etc/apk/keys/${{ matrix.app.name }}.pub
-          workspace-dir: ${{ github.workspace }}/build/${{ matrix.app.name }}
-          empty-workspace: ${{ inputs.empty-workspace }}
-          signing-key-path: ${{ github.workspace }}/${{ matrix.app.name }}
-          source-dir: ${{ matrix.app.context }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+# system steups 
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v1.2.0
 
+      - name: Add SHORT_SHA env property with commit short sha
+        run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
+
+      - uses: imjasonh/setup-crane@v0.3
+
+      - uses: sigstore/cosign-installer@main
+        with:
+          cosign-release: v1.13.1
+
+  
+      - uses: chainguard-dev/actions/setup-melange@main
+      - run: |
+          echo "$SIGNING_KEY" >${{ github.workspace }}/melange.rsa
+          echo "$SIGNING_KEY_PUB" >${{ github.workspace }}/melange.rsa.pub
+        env:
+          SIGNING_KEY: ${{ secrets.MELANGE_SIGNING_KEY }}
+          SIGNING_KEY_PUB: ${{ secrets.MELANGE_SIGNING_KEY_PUB }}
+
+      - uses: chainguard-dev/actions/melange-build-pkg@main
+        with:
+          config: .melange.yaml
+          repository-path: ${{ github.workspace }}/${{matrix.app.context}}
+          archs: x86_64
+          sign-with-key: true
+          signing-key-path: ${{ github.workspace }}/melange.rsa
+          keyring-append: ${{ github.workspace }}/melange.rsa.pub
+          update-index: true
+  
+      - uses: chainguard-images/actions/apko-build@main
+        with:
+          config: apko.yaml
+          tag: ${{matrix.app.name}}:${{env.SHORT_SHA}
+          keyring-append: melange.rsa.pub
+          archs: x86_64
+
+      - uses: chainguard-images/actions/apko-publish@main
+        id: apko
+        with:
+          config: ${{matrix.app.name}}/apko.yaml
+          tag: ghcr.io/${{ github.repository }}/${{matrix.app.name}}:latest
+          image_refs: apko.images
+          keyring-append: melange.rsa.pub
+          source-date-epoch: "0"
+          archs: x86_64
+
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ github.token }}
+
+
+      - shell: bash
+        run: |
+          crane cp ${{ steps.apko.outputs.digest }} "ghcr.io/${{ github.repository }}/${{matrix.app.name}}:test"
+          crane cp ${{ steps.apko.outputs.digest }} "ghcr.io/${{ github.repository }}/${{matrix.app.name}}:test"

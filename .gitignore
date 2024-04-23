@@ -1,4 +1,5 @@
 *.tar*
 *.apk*
 *.gz*
-
+*.pem
+*.pub

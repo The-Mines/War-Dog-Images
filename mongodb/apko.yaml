@@ -1,0 +1,29 @@
+contents:
+  repositories:
+    - https://dl-cdn.alpinelinux.org/alpine/edge/main
+    - '@local /github/workspace/packages'
+  packages:
+    - alpine-baselayout-data
+    - busybox
+    - ca-certificates-bundle
+    - war-dog-mongodb@local
+accounts:
+  groups:
+    - groupname: nonroot
+      gid: 65532
+  users:
+    - username: nonroot
+      uid: 65532
+  run-as: 65532
+# environment:
+#   KUBECTL_VERSION: v1.28.3
+#   KUSTOMIZE_VERSION: v5.2.1
+#   KAPP_VERSION: v0.59.1
+#   KBLD_VERSION: v0.38.0
+#   HELM_VERSION: v3.13.1
+entrypoint:
+  command: /usr/bin/entrypoint.sh
+archs:
+  - x86_64
+  # - amd64
+  # - arm64

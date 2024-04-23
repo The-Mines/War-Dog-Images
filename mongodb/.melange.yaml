@@ -75,6 +75,7 @@ pipeline:
       pip3.10 install  cxxfilt
       poetry install --no-root --sync
       python3.10 buildscripts/scons.py install-mongod --linker=gold MONGO_VERSION=${{package.version}} --disable-warnings-as-errors -j1
+      install -D entrypoint.sh ${{targets.destdir}}/usr/bin/entrypoint.sh
 
 
 
